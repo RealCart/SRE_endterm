@@ -62,3 +62,22 @@ ansible-playbook -i inventory.ini playbook.yml
 
 ## Incident Simulation
 Set `BROKEN_DB=true` for order-service, redeploy, observe Prometheus/Grafana alerts, then restore configuration.
+
+## CI/CD Pipeline
+This project includes a ready GitHub Actions pipeline in `.github/workflows/ci-cd.yml`.
+
+Pipeline stages:
+1. **Validation and tests**: installs Python dependencies, checks Python imports with Ruff, compiles service code, validates Docker Compose, Kubernetes manifests, and Terraform.
+2. **Build and smoke test**: builds all Docker images, starts the application stack with Docker Compose, then checks `/health`, `/ready`, and `/metrics` endpoints for every microservice.
+3. **Publish images**: on pushes to `main` or `master`, builds and pushes service images to GitHub Container Registry.
+4. **Deploy template**: placeholder stage for connecting a real server, Docker Swarm, Kubernetes cluster, or Ansible deployment.
+
+To enable image publishing, push the repository to GitHub and make sure GitHub Actions has package write permissions. The workflow uses the built-in `GITHUB_TOKEN`, so no extra registry password is required for GHCR.
+
+Useful local command before pushing:
+```bash
+chmod +x scripts/smoke_test.sh
+docker compose up --build -d
+./scripts/smoke_test.sh
+docker compose down -v
+```
