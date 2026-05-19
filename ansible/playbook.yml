@@ -1,0 +1,27 @@
+- name: Configure SRE microservices nodes
+  hosts: sre_nodes
+  become: yes
+  tasks:
+    - name: Install dependencies
+      apt:
+        name: [docker.io, docker-compose-plugin, python3-pip]
+        update_cache: yes
+        state: present
+    - name: Enable Docker
+      service:
+        name: docker
+        state: started
+        enabled: yes
+    - name: Create app directory
+      file:
+        path: /opt/sre-demo
+        state: directory
+        mode: '0755'
+    - name: Copy deployment files
+      copy:
+        src: ../
+        dest: /opt/sre-demo/
+    - name: Start Docker Compose stack
+      command: docker compose up -d
+      args:
+        chdir: /opt/sre-demo

@@ -1,0 +1,153 @@
+version: "3.9"
+services:
+  frontend:
+    build: ./frontend
+    ports:
+      - "8080:80"
+    depends_on:
+      - auth-service
+      - product-service
+      - order-service
+      - payment-service
+      - notification-service
+      - profile-service
+    restart: unless-stopped
+  auth-service:
+    build: ./services/auth-service
+    environment:
+      - SERVICE_NAME=auth-service
+      - PORT=8001
+      - DB_HOST=postgres
+    ports:
+      - "8001:8001"
+    depends_on:
+      - postgres
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8001/health')"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  product-service:
+    build: ./services/product-service
+    environment:
+      - SERVICE_NAME=product-service
+      - PORT=8002
+      - DB_HOST=postgres
+    ports:
+      - "8002:8002"
+    depends_on:
+      - postgres
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8002/health')"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  order-service:
+    build: ./services/order-service
+    environment:
+      - SERVICE_NAME=order-service
+      - PORT=8003
+      - DB_HOST=postgres
+    ports:
+      - "8003:8003"
+    depends_on:
+      - postgres
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8003/health')"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  payment-service:
+    build: ./services/payment-service
+    environment:
+      - SERVICE_NAME=payment-service
+      - PORT=8004
+      - DB_HOST=postgres
+    ports:
+      - "8004:8004"
+    depends_on:
+      - postgres
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8004/health')"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  notification-service:
+    build: ./services/notification-service
+    environment:
+      - SERVICE_NAME=notification-service
+      - PORT=8005
+      - DB_HOST=postgres
+    ports:
+      - "8005:8005"
+    depends_on:
+      - postgres
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8005/health')"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  profile-service:
+    build: ./services/profile-service
+    environment:
+      - SERVICE_NAME=profile-service
+      - PORT=8006
+      - DB_HOST=postgres
+    ports:
+      - "8006:8006"
+    depends_on:
+      - postgres
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8006/health')"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: sre
+      POSTGRES_PASSWORD: srepass
+      POSTGRES_DB: sreapp
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+  prometheus:
+    image: prom/prometheus:v2.55.0
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./monitoring/alerts.yml:/etc/prometheus/alerts.yml:ro
+    ports:
+      - "9090:9090"
+    depends_on:
+      - auth-service
+      - product-service
+      - order-service
+      - payment-service
+      - notification-service
+      - profile-service
+  grafana:
+    image: grafana/grafana:11.3.0
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards
+volumes:
+  pgdata:
