@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SRE Commerce Control Panel</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="page-shell">
+    <header class="hero">
+      <nav class="topbar">
+        <div class="brand">
+          <span class="brand-mark">SRE</span>
+          <div>
+            <strong>Microservices Store</strong>
+            <small>Frontend connected to FastAPI backend</small>
+          </div>
+        </div>
+        <div class="nav-actions">
+          <a href="http://localhost:9090" target="_blank" rel="noreferrer">Prometheus</a>
+          <a href="http://localhost:3000" target="_blank" rel="noreferrer">Grafana</a>
+        </div>
+      </nav>
+
+      <section class="hero-grid">
+        <div class="hero-copy">
+          <p class="eyebrow">Cloud native demo</p>
+          <h1>Beautiful dashboard for managing your microservices.</h1>
+          <p class="subtitle">
+            Check service health, load data from each backend service, and create new records through the Nginx API gateway.
+          </p>
+          <div class="hero-buttons">
+            <button id="refreshAllBtn" class="btn primary">Refresh all services</button>
+            <button id="loadSelectedBtn" class="btn ghost">Load selected service</button>
+          </div>
+        </div>
+        <div class="status-card glass">
+          <div class="status-card-head">
+            <span>System status</span>
+            <strong id="overallStatus">Checking...</strong>
+          </div>
+          <div class="status-ring" id="statusRing">0/6</div>
+          <p id="lastUpdated">Waiting for first request</p>
+        </div>
+      </section>
+    </header>
+
+    <main>
+      <section class="metrics-grid" id="healthGrid"></section>
+
+      <section class="workspace">
+        <aside class="panel services-panel">
+          <div class="section-title">
+            <p>Services</p>
+            <h2>API Gateway Routes</h2>
+          </div>
+          <div class="service-list" id="serviceList"></div>
+        </aside>
+
+        <section class="panel data-panel">
+          <div class="data-header">
+            <div>
+              <p class="eyebrow">Live backend data</p>
+              <h2 id="activeServiceTitle">Product Service</h2>
+            </div>
+            <span class="pill" id="activeRoute">/products/items</span>
+          </div>
+
+          <div class="form-card">
+            <h3>Create new item</h3>
+            <form id="itemForm">
+              <label>
+                Item name
+                <input id="itemName" type="text" placeholder="Example: Premium laptop" required />
+              </label>
+              <label>
+                Status
+                <select id="itemStatus">
+                  <option value="active">active</option>
+                  <option value="pending">pending</option>
+                  <option value="completed">completed</option>
+                  <option value="failed">failed</option>
+                </select>
+              </label>
+              <button class="btn primary" type="submit">Send POST request</button>
+            </form>
+          </div>
+
+          <div class="items-head">
+            <h3>Items returned by backend</h3>
+            <button id="clearLogBtn" class="btn tiny">Clear log</button>
+          </div>
+          <div class="items-grid" id="itemsGrid"></div>
+        </section>
+
+        <aside class="panel log-panel">
+          <div class="section-title">
+            <p>Request log</p>
+            <h2>Frontend ↔ Backend</h2>
+          </div>
+          <div id="requestLog" class="request-log"></div>
+        </aside>
+      </section>
+    </main>
+  </div>
+
+  <template id="healthCardTemplate">
+    <article class="metric-card">
+      <div class="metric-icon"></div>
+      <div>
+        <span class="metric-label"></span>
+        <strong class="metric-value"></strong>
+        <small class="metric-route"></small>
+      </div>
+    </article>
+  </template>
+
+  <script src="app.js"></script>
+</body>
+</html>
